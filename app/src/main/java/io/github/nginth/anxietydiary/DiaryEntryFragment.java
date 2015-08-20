@@ -2,6 +2,7 @@ package io.github.nginth.anxietydiary;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -116,6 +117,9 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
         DiaryEntryListItem item = (DiaryEntryListItem) this.diaryEntryListItemList.get(position);
         Toast.makeText(getActivity(), item.getItemTitle() + " clicked!",
                 Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getActivity(), DetailActivity.class)
+                .putExtra(Intent.EXTRA_TEXT, item.getItemTitle());
+        startActivity(intent);
     }
 
     /**

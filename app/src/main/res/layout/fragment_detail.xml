@@ -7,7 +7,19 @@
     tools:context="io.github.nginth.anxietydiary.DetailActivityFragment">
 
     <EditText
+        android:id="@+id/detail_EditText"
+        android:imeOptions="actionDone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        />
+    <Button
+        android:id="@+id/detail_button_save"
+        android:text="@string/detail_button_save"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_below="@id/detail_EditText"
+        android:layout_alignParentRight="true"
+        />
 
 </RelativeLayout>

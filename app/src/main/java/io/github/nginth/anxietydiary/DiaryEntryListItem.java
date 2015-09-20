@@ -5,13 +5,28 @@ package io.github.nginth.anxietydiary;
  */
 public class DiaryEntryListItem {
     private String itemTitle;
+    private String itemDate;
+    private int itemId;
+    private String itemAnxietyLevel;
 
-    public DiaryEntryListItem(String title){
+    public DiaryEntryListItem(int id, String title, String date, int anxietyLevel) {
         itemTitle = title;
     }
 
     public String getItemTitle(){
         return itemTitle;
+    }
+
+    public String getItemDate() {
+        return itemDate;
+    }
+
+    public int getItemId() {
+        return itemId;
+    }
+
+    public String getItemLevel() {
+        return itemAnxietyLevel;
     }
 
     public void setItemTitle(String title){

@@ -1,12 +1,12 @@
 package io.github.nginth.anxietydiary;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends Activity implements DiaryEntryFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements DiaryEntryFragment.OnFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +18,7 @@ public class MainActivity extends Activity implements DiaryEntryFragment.OnFragm
                     .add(R.id.container, new DiaryEntryFragment())
                     .commit();
         }
+
     }
 
     @Override

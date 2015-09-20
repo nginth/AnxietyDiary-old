@@ -2,8 +2,13 @@ package io.github.nginth.anxietydiary;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,22 +77,27 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        diaryEntryListItemList = new ArrayList<DiaryEntryListItem>();
-        diaryEntryListItemList.add(new DiaryEntryListItem("Example 1"));
-        diaryEntryListItemList.add(new DiaryEntryListItem("Example 2"));
-        diaryEntryListItemList.add(new DiaryEntryListItem("Example 3"));
-        mAdapter = new DiaryEntryListAdapter(getActivity(), diaryEntryListItemList);
+    }
 
+    public void updateEntries() {
+        DiaryEntryDbHelper db = new DiaryEntryDbHelper(getActivity().getApplicationContext());
+        FetchDB getDB = new FetchDB();
+        getDB.execute(db);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_diaryentry, container, false);
-
+        diaryEntryListItemList = new ArrayList<DiaryEntryListItem>();
+        mAdapter =
+                new DiaryEntryListAdapter(
+                        getActivity(),
+                        diaryEntryListItemList);
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+        updateEntries();
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
@@ -148,6 +158,50 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(String id);
+    }
+
+    //Async because getWritableDatabase can take a while on first creation
+    private class FetchDB extends AsyncTask<DiaryEntryDbHelper, Void, SQLiteDatabase> {
+        String LOG_TAG = FetchDB.class.getSimpleName();
+
+        protected SQLiteDatabase doInBackground(DiaryEntryDbHelper... dbs) {
+            return dbs[0].getWritableDatabase();
+        }
+
+        protected void onPostExecute(SQLiteDatabase result) {
+            if (result != null) {
+                Log.e(LOG_TAG, "Database: " + result.toString());
+
+                ContentValues values = new ContentValues();
+                values.put(DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY, "I feel blessed");
+                values.put(DiaryEntryContract.DiaryEntry.COLUMN_NAME_ANX_LEVEL, 1);
+
+                long id;
+                id = result.insert(DiaryEntryContract.DiaryEntry.TABLE_NAME, "null", values);
+
+                String[] projection = {
+                        DiaryEntryContract.DiaryEntry.COLUMN_NAME_ENTRY_ID,
+                        DiaryEntryContract.DiaryEntry.COLUMN_NAME_DATE,
+                        DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY,
+                        DiaryEntryContract.DiaryEntry.COLUMN_NAME_ANX_LEVEL
+                };
+
+                final String ROW_LIMIT = "1000";
+                Cursor c = result.query(
+                        DiaryEntryContract.DiaryEntry.TABLE_NAME,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        ROW_LIMIT
+                );
+
+                c.moveToFirst();
+                Log.e(LOG_TAG, c.getString(c.getColumnIndexOrThrow(DiaryEntryContract.DiaryEntry.COLUMN_NAME_DATE)));
+            }
+        }
     }
 
 }

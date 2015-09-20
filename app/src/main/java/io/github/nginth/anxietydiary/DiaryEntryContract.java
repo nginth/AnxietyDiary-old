@@ -15,5 +15,6 @@ public final class DiaryEntryContract {
         public static final String COLUMN_NAME_ENTRY_ID = "entryid";
         public static final String COLUMN_NAME_DIARY_ENTRY = "diaryentry";
         public static final String COLUMN_NAME_DATE = "date";
+        public static final String COLUMN_NAME_ANX_LEVEL = "anxlevel";
     }
 }

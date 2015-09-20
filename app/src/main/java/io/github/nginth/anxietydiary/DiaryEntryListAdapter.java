@@ -18,7 +18,7 @@ public class DiaryEntryListAdapter extends ArrayAdapter {
     private boolean useList = true;
 
     public DiaryEntryListAdapter(Context context, List items){
-        super(context, android.R.layout.simple_list_item_1, items);
+        super(context, android.R.layout.simple_list_item_2, items);
         this.context = context;
     }
 

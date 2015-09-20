@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 
 public class DetailActivity extends Activity {
@@ -41,5 +43,9 @@ public class DetailActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void saveDiary(View view) {
+        Toast.makeText(view.getContext(), "Save clicked!", Toast.LENGTH_SHORT).show();
     }
 }

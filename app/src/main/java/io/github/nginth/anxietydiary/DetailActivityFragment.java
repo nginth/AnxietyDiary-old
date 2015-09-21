@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 
 /**
@@ -18,7 +19,11 @@ public class DetailActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_detail, container, false);
+        View view = inflater.inflate(R.layout.fragment_detail, container, false);
+        String diaryEntry = getArguments().getString("diaryEntry");
+        EditText editText = (EditText) view.findViewById(R.id.detail_EditText);
+        editText.setText(diaryEntry);
+        return view;
     }
 
 }

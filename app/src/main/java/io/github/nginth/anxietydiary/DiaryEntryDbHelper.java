@@ -3,7 +3,10 @@ package io.github.nginth.anxietydiary;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.util.Log;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by nginther on 8/20/15.
@@ -21,6 +24,7 @@ public class DiaryEntryDbHelper extends SQLiteOpenHelper {
     private static final String DELETE_ENTRIES = "DROP TABLE IF EXISTS " + DiaryEntryContract.DiaryEntry.TABLE_NAME;
 
     public DiaryEntryDbHelper(Context context){
+
         super(context, DB_NAME, null, DATABASE_VERSION);
     }
 
@@ -34,5 +38,18 @@ public class DiaryEntryDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(DELETE_ENTRIES);
         onCreate(db);
+    }
+
+    public SQLiteDatabase getDB(Context context) throws InterruptedException, ExecutionException {
+        return new FetchDB().execute(new DiaryEntryDbHelper(context)).get();
+    }
+
+    //Async because getWritableDatabase can take a while on first creation
+    private class FetchDB extends AsyncTask<DiaryEntryDbHelper, Void, SQLiteDatabase> {
+        String LOG_TAG = FetchDB.class.getSimpleName();
+
+        protected SQLiteDatabase doInBackground(DiaryEntryDbHelper... dbs) {
+            return dbs[0].getWritableDatabase();
+        }
     }
 }

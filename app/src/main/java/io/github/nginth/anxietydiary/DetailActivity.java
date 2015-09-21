@@ -1,14 +1,16 @@
 package io.github.nginth.anxietydiary;
 
 import android.app.Activity;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 
 public class DetailActivity extends Activity {
+    private String LOG_TAG = DetailActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,10 +18,13 @@ public class DetailActivity extends Activity {
         setContentView(R.layout.activity_detail);
 
         if(savedInstanceState == null) {
+            DetailActivityFragment details = new DetailActivityFragment();
+            details.setArguments(getIntent().getExtras());
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new DetailActivityFragment())
+                    .add(R.id.container, details)
                     .commit();
         }
+
     }
 
 
@@ -46,6 +51,15 @@ public class DetailActivity extends Activity {
     }
 
     public void saveDiary(View view) {
-        Toast.makeText(view.getContext(), "Save clicked!", Toast.LENGTH_SHORT).show();
+        DiaryEntryDbHelper dbHelper = new DiaryEntryDbHelper(view.getContext());
+        try {
+            SQLiteDatabase db = dbHelper.getDB(view.getContext());
+            db.execSQL("UPDATE " + DiaryEntryContract.DiaryEntry.TABLE_NAME +
+                    "SET " + DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY +
+                    "WHERE " + DiaryEntryContract.DiaryEntry.COLUMN_NAME_ENTRY_ID +
+                    " = " + getIntent().getStringExtra("diaryID") + ";");
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getStackTrace().toString());
+        }
     }
 }

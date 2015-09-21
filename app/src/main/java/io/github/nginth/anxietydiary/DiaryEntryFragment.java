@@ -2,11 +2,8 @@ package io.github.nginth.anxietydiary;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +14,6 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -45,7 +40,7 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
      */
     private ListAdapter mAdapter;
 
-    private List diaryEntryListItemList;
+    private Cursor cursor;
 
     // TODO: Rename and change types of parameters
     public static DiaryEntryFragment newInstance(String param1, String param2) {
@@ -69,20 +64,17 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
     }
 
     public Cursor updateEntries() throws InterruptedException, ExecutionException {
+//        String[] projection = {
+//                DiaryEntryContract.DiaryEntry.COLUMN_NAME_ENTRY_ID,
+//                DiaryEntryContract.DiaryEntry.COLUMN_NAME_DATE,
+//                DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY,
+//                DiaryEntryContract.DiaryEntry.COLUMN_NAME_ANX_LEVEL
+//        };
         DiaryEntryDbHelper db = new DiaryEntryDbHelper(getActivity().getApplicationContext());
-        FetchDB getDB = new FetchDB();
 
-        String[] projection = {
-                DiaryEntryContract.DiaryEntry.COLUMN_NAME_ENTRY_ID,
-                DiaryEntryContract.DiaryEntry.COLUMN_NAME_DATE,
-                DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY,
-                DiaryEntryContract.DiaryEntry.COLUMN_NAME_ANX_LEVEL
-        };
-
-        final String ROW_LIMIT = "1000";
-        Cursor c = getDB.execute(db).get().rawQuery("SELECT  * FROM " + DiaryEntryContract.DiaryEntry.TABLE_NAME, null);
-
+        Cursor c = db.getDB(getActivity().getApplicationContext()).rawQuery("SELECT * FROM " + DiaryEntryContract.DiaryEntry.TABLE_NAME, null);
         c.moveToFirst();
+
         return c;
     }
 
@@ -90,10 +82,9 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_diaryentry, container, false);
-        diaryEntryListItemList = new ArrayList<DiaryEntryListItem>();
 
         try {
-            Cursor cursor = updateEntries();
+            cursor = updateEntries();
             mAdapter =
                     new DiaryEntryListAdapter(
                             getActivity(),
@@ -135,11 +126,13 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        DiaryEntryListItem item = (DiaryEntryListItem) this.diaryEntryListItemList.get(position);
-        Toast.makeText(getActivity(), item.getItemTitle() + " clicked!",
+        cursor.moveToPosition(position);
+        String diaryEntry = cursor.getString(cursor.getColumnIndexOrThrow(DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY));
+        String diaryID = cursor.getString(cursor.getColumnIndexOrThrow(DiaryEntryContract.DiaryEntry.COLUMN_NAME_ENTRY_ID));
+        Toast.makeText(getActivity(), position + " clicked!",
                 Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(getActivity(), DetailActivity.class)
-                .putExtra(Intent.EXTRA_TEXT, item.getItemTitle());
+                .putExtra("diaryEntry", diaryEntry).putExtra("diaryID", diaryID);
         startActivity(intent);
     }
 
@@ -169,27 +162,6 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(String id);
-    }
-
-    //Async because getWritableDatabase can take a while on first creation
-    private class FetchDB extends AsyncTask<DiaryEntryDbHelper, Void, SQLiteDatabase> {
-        String LOG_TAG = FetchDB.class.getSimpleName();
-
-        protected SQLiteDatabase doInBackground(DiaryEntryDbHelper... dbs) {
-            return dbs[0].getWritableDatabase();
-        }
-
-        protected void onPostExecute(SQLiteDatabase result) {
-            if (result != null) {
-
-                ContentValues values = new ContentValues();
-                values.put(DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY, "I feel blessed I feel blessed I feel blessed I feel blessed I feel blessed I feel blessed");
-                values.put(DiaryEntryContract.DiaryEntry.COLUMN_NAME_ANX_LEVEL, 1);
-
-                long id;
-                id = result.insert(DiaryEntryContract.DiaryEntry.TABLE_NAME, "null", values);
-            }
-        }
     }
 
 }

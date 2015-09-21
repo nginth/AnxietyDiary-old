@@ -2,16 +2,22 @@ package io.github.nginth.anxietydiary;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 /**
  * Created by nginther on 8/17/15.
  */
 public class DiaryEntryListAdapter extends CursorAdapter {
+    private static final String LOG_TAG = DiaryEntryListAdapter.class.getSimpleName();
     private Context context;
     private boolean useList = true;
 
@@ -41,8 +47,19 @@ public class DiaryEntryListAdapter extends CursorAdapter {
         String date = cursor.getString(cursor.getColumnIndexOrThrow(DiaryEntryContract.DiaryEntry.COLUMN_NAME_DATE));
         String summary = cursor.getString(cursor.getColumnIndexOrThrow(DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY));
         //Populate fields with data from cursor
-        //TODO: format date
-        tvDate.setText(date);
+        tvDate.setText(format(date));
         tvSummary.setText(summary);
+    }
+
+    private String format(String date) {
+        DateFormat df = DateFormat.getDateTimeInstance();
+        DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            return df.format(df2.parse(date));
+        } catch (ParseException e) {
+            Log.e(LOG_TAG, "error parsing date string");
+            Log.e(LOG_TAG, e.getStackTrace().toString());
+        }
+        return "";
     }
 }

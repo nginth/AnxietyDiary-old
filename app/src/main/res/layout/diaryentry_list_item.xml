@@ -3,14 +3,22 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:minHeight="?android:listPreferredItemHeight"
-        android:text="Large Text"
         android:gravity="center"
-        android:id="@+id/titleTextView"
+        android:id="@+id/tvDate"
         />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:minHeight="?android:listPreferredItemHeight"
+        android:gravity="center"
+        android:id="@+id/tvSummary"
+        android:maxLines="1"
+        android:ellipsize="end" />
 </LinearLayout>

@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A fragment representing a list of Items.
@@ -31,15 +31,6 @@ import java.util.List;
  * interface.
  */
 public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemClickListener {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
 
@@ -60,9 +51,7 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
     public static DiaryEntryFragment newInstance(String param1, String param2) {
         DiaryEntryFragment fragment = new DiaryEntryFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -79,10 +68,22 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
 
     }
 
-    public void updateEntries() {
+    public Cursor updateEntries() throws InterruptedException, ExecutionException {
         DiaryEntryDbHelper db = new DiaryEntryDbHelper(getActivity().getApplicationContext());
         FetchDB getDB = new FetchDB();
-        getDB.execute(db);
+
+        String[] projection = {
+                DiaryEntryContract.DiaryEntry.COLUMN_NAME_ENTRY_ID,
+                DiaryEntryContract.DiaryEntry.COLUMN_NAME_DATE,
+                DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY,
+                DiaryEntryContract.DiaryEntry.COLUMN_NAME_ANX_LEVEL
+        };
+
+        final String ROW_LIMIT = "1000";
+        Cursor c = getDB.execute(db).get().rawQuery("SELECT  * FROM " + DiaryEntryContract.DiaryEntry.TABLE_NAME, null);
+
+        c.moveToFirst();
+        return c;
     }
 
     @Override
@@ -90,14 +91,24 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_diaryentry, container, false);
         diaryEntryListItemList = new ArrayList<DiaryEntryListItem>();
-        mAdapter =
-                new DiaryEntryListAdapter(
-                        getActivity(),
-                        diaryEntryListItemList);
+
+        try {
+            Cursor cursor = updateEntries();
+            mAdapter =
+                    new DiaryEntryListAdapter(
+                            getActivity(),
+                            cursor,
+                            0);
+        } catch (InterruptedException | ExecutionException e) {
+            System.out.println("Error fetching entries from databae");
+            e.printStackTrace();
+        }
+
+
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
-        updateEntries();
+
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
@@ -170,36 +181,13 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
 
         protected void onPostExecute(SQLiteDatabase result) {
             if (result != null) {
-                Log.e(LOG_TAG, "Database: " + result.toString());
 
                 ContentValues values = new ContentValues();
-                values.put(DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY, "I feel blessed");
+                values.put(DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY, "I feel blessed I feel blessed I feel blessed I feel blessed I feel blessed I feel blessed");
                 values.put(DiaryEntryContract.DiaryEntry.COLUMN_NAME_ANX_LEVEL, 1);
 
                 long id;
                 id = result.insert(DiaryEntryContract.DiaryEntry.TABLE_NAME, "null", values);
-
-                String[] projection = {
-                        DiaryEntryContract.DiaryEntry.COLUMN_NAME_ENTRY_ID,
-                        DiaryEntryContract.DiaryEntry.COLUMN_NAME_DATE,
-                        DiaryEntryContract.DiaryEntry.COLUMN_NAME_DIARY_ENTRY,
-                        DiaryEntryContract.DiaryEntry.COLUMN_NAME_ANX_LEVEL
-                };
-
-                final String ROW_LIMIT = "1000";
-                Cursor c = result.query(
-                        DiaryEntryContract.DiaryEntry.TABLE_NAME,
-                        projection,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        ROW_LIMIT
-                );
-
-                c.moveToFirst();
-                Log.e(LOG_TAG, c.getString(c.getColumnIndexOrThrow(DiaryEntryContract.DiaryEntry.COLUMN_NAME_DATE)));
             }
         }
     }

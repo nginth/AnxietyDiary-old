@@ -12,7 +12,7 @@ public final class DiaryEntryContract {
     public static abstract class DiaryEntry implements BaseColumns{
         //implements BaseColumns to get access to _ID, for compatability across Android libraries
         public static final String TABLE_NAME = "Diary";
-        public static final String COLUMN_NAME_ENTRY_ID = "entryid";
+        public static final String COLUMN_NAME_ENTRY_ID = _ID;
         public static final String COLUMN_NAME_DIARY_ENTRY = "diaryentry";
         public static final String COLUMN_NAME_DATE = "date";
         public static final String COLUMN_NAME_ANX_LEVEL = "anxlevel";

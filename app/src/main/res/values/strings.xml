@@ -6,5 +6,6 @@
     <string name="title_activity_detail">AnxietyDiary</string>
     <string name="detail_button_save">Save</string>
     <string name="empty_list_default">No diary entries found!</string>
+    <string name="anxiety_level_button">Anxiety Level</string>
 </resources>
 

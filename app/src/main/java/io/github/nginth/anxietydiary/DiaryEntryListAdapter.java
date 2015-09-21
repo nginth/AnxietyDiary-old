@@ -12,18 +12,16 @@ import android.widget.TextView;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 /**
  * Created by nginther on 8/17/15.
  */
 public class DiaryEntryListAdapter extends CursorAdapter {
     private static final String LOG_TAG = DiaryEntryListAdapter.class.getSimpleName();
-    private Context context;
-    private boolean useList = true;
 
     public DiaryEntryListAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, 0);
-        this.context = context;
     }
 //    // Holder for the list items
 //    // don't have to call findViewById each time
@@ -53,13 +51,12 @@ public class DiaryEntryListAdapter extends CursorAdapter {
 
     private String format(String date) {
         DateFormat df = DateFormat.getDateTimeInstance();
-        DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
         try {
             return df.format(df2.parse(date));
         } catch (ParseException e) {
-            Log.e(LOG_TAG, "error parsing date string");
-            Log.e(LOG_TAG, e.getStackTrace().toString());
+            Log.e(LOG_TAG, "error parsing date string", e);
         }
-        return "";
+        return "yyyy-MM-dd HH:mm:ss";
     }
 }

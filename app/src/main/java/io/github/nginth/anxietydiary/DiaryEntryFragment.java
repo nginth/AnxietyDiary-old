@@ -5,11 +5,13 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +28,7 @@ import java.util.concurrent.ExecutionException;
  * interface.
  */
 public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemClickListener {
+    private static final String LOG_TAG = DiaryEntryFragment.class.getSimpleName();
 
     private OnFragmentInteractionListener mListener;
 
@@ -60,10 +63,19 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    public void onStart() {
+        super.onStart();
+        try {
+            updateEntries();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Database read failed.", e);
+        }
 
     }
 
-    public Cursor updateEntries() throws InterruptedException, ExecutionException {
+    public void updateEntries() throws InterruptedException, ExecutionException {
 //        String[] projection = {
 //                DiaryEntryContract.DiaryEntry.COLUMN_NAME_ENTRY_ID,
 //                DiaryEntryContract.DiaryEntry.COLUMN_NAME_DATE,
@@ -72,10 +84,12 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
 //        };
         DiaryEntryDbHelper db = new DiaryEntryDbHelper(getActivity().getApplicationContext());
 
-        Cursor c = db.getDB(getActivity().getApplicationContext()).rawQuery("SELECT * FROM " + DiaryEntryContract.DiaryEntry.TABLE_NAME, null);
-        c.moveToFirst();
-
-        return c;
+        cursor = db.getDB(getActivity().getApplicationContext()).rawQuery("SELECT * FROM " + DiaryEntryContract.DiaryEntry.TABLE_NAME, null);
+        cursor.moveToFirst();
+        //if adapter already exists, swap old data with new data
+        if (mAdapter != null) {
+            ((CursorAdapter) mAdapter).swapCursor(cursor);
+        }
     }
 
     @Override
@@ -84,25 +98,21 @@ public class DiaryEntryFragment extends Fragment implements AbsListView.OnItemCl
         View view = inflater.inflate(R.layout.fragment_diaryentry, container, false);
 
         try {
-            cursor = updateEntries();
+            updateEntries();
             mAdapter =
                     new DiaryEntryListAdapter(
                             getActivity(),
                             cursor,
                             0);
-        } catch (InterruptedException | ExecutionException e) {
-            System.out.println("Error fetching entries from databae");
-            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Database read failed", e);
         }
-
-
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
-
-
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
+
 
         return view;
     }

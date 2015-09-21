@@ -73,4 +73,9 @@ public class DetailActivity extends Activity {
         }
         Toast.makeText(view.getContext(), "Saved!", Toast.LENGTH_SHORT).show();
     }
+
+    public void show(View view) {
+        final AnxietyLevelDialogFragment d = new AnxietyLevelDialogFragment();
+        d.show(getFragmentManager(), "AnxietyLevelDialogFragment");
+    }
 }

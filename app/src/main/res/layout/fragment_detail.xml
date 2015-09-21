@@ -28,11 +28,14 @@
             android:text="@string/detail_button_save" />
 
         <Button
+            android:id="@+id/anx_level_button"
+            android:onClick="show"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
-            android:text="@string/anxiety_level_button"></Button>
+            android:text="@string/anxiety_level_button" />
+
     </RelativeLayout>
 
 </ScrollView>
